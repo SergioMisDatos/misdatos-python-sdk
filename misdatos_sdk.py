@@ -315,3 +315,40 @@ class mdapi2:
             self.ultimomensajeerror = f"Error al ejecutar plantilla: {e}"
             
         return 0.0
+# -- Propiedades --
+    @property
+    def ultimomensajeerror(self): return self._ultimomensajeerror
+    @ultimomensajeerror.setter
+    def ultimomensajeerror(self, v): self._ultimomensajeerror = v
+    
+    @property
+    def password(self): return self._password
+    @password.setter
+    def password(self, v): self._password = v
+
+    @property
+    def usuario(self): return self._usuario
+    @usuario.setter
+    def usuario(self, v): self._usuario = v
+    
+    @property
+    def modo(self): return self._modo
+    @modo.setter
+    def modo(self, v): self._modo = v
+
+    @property
+    def revision(self): return self._revision
+
+    @property
+    def service(self): return self._service
+
+    @property
+    def endpoint(self): return self._endpoint
+
+    @property
+    def endpointtest(self): return self._endpointtest
+
+    @property
+    def respuesta(self): return self._respuesta
+    @respuesta.setter
+    def respuesta(self, v): self._respuesta = v        
