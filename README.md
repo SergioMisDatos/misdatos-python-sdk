@@ -16,3 +16,9 @@ Este SDK proporciona una interfaz orientada a objetos para autenticarse y consum
 
 ```bash
 pip install -r requirements.txt
+
+Abre el archivo ejemplo.py y reemplaza "tu_usuario_token" y "tu_clave_token" con tus credenciales reales obtenidas en www.misdatos.com.ar/whatsapp/0.
+
+Ejecuta el script desde tu terminal:
+python ejemplo.py
+recordar que el numero destino debe entrar a www.misatos.com.ar/bot para aceptar recibir mensaje desde el chatbot
