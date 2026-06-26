@@ -1,0 +1,154 @@
+# -*- coding: utf-8 -*-
+#from mdpyv009 import mdapi2
+from misdatos_sdk import mdapi2
+
+if __name__ == '__main__':
+    print("=========================================================")
+    print(" INICIO DE EJEMPLO DE CONSUMO DE API (Estructura Plana)  ")
+    print("=========================================================\n")
+
+    # 1. Instanciamos la clase
+    api = mdapi2()
+
+    # NOTA IMPORTANTE:
+    # Las credenciales (usuario y password) representan un token de acceso.
+    # Deben tramitarse previamente en la plataforma: www.misdatos.com.ar/whatsapp/0
+    api.usuario = "tu_usuario_token"
+    api.password = "tu_clave_token"
+    api.modo = 1  # 1 = Producción, 0 = Test (Localhost)
+
+    # ---------------------------------------------------------
+    # MÉTODO 1: CONECTAR
+    # ---------------------------------------------------------
+    print("--- 1. Conectando a la API ---")
+    conectado = api.conectar()
+    
+    if not conectado:
+        print("❌ Error de conexión:", api.ultimomensajeerror)
+    else:
+        print("✅ Conectado exitosamente con las credenciales provistas.")
+
+    # ---------------------------------------------------------
+    # MÉTODO 2: REGISTRAR / ACTUALIZAR DESTINO
+    # ---------------------------------------------------------
+    iddestino = "0"
+    
+    if conectado:
+        print("\n--- 2. Ejecutando mdwhatsappdestinov01 ---")
+        
+        # Variables autodocumentadas para el método
+        cdestino = "54123412345678" # Teléfono (generalmente con código de país)
+        ccodigo = "EMP-001"         # Identificador interno en tu sistema
+        cemail = "juanperez@ejemplo.com"
+        cestadoproveedor = "0"      # 0 = Activo
+        cfecha = "20260626"         # Formato AAAAMMDD
+        cnombre = "Juan Perez"
+        caccionclave = "porcodigo"  # Identifica al registro por el campo código
+
+        iddestinostr = api.mdwhatsappdestinov01(
+            cdestino=cdestino,
+            ccodigo=ccodigo,
+            cemail=cemail,
+            nestadoproveedor=cestadoproveedor,
+            cfecha=cfecha,
+            cnombre=cnombre,
+            caccionclave=caccionclave
+        )
+
+        if iddestinostr == "0":
+            print("❌ Error en mdwhatsappdestinov01:", api.ultimomensajeerror)
+        else:
+            iddestino = iddestinostr
+            print(f"✅ Éxito. Destino creado/actualizado con ID: {iddestino}")
+            
+            # Ejemplo de uso de leerPropiedad (Apto para clientes COM como VFP o VB6)
+            nombreguardado = api.leerPropiedad("mdwhatsappdestinov01", "diccionario.registro.diccionario.nombre", 0, 0, 0)
+            print(f"   Dato recuperado de la respuesta COM-Safe (Nombre): {nombreguardado}")
+
+    # ---------------------------------------------------------
+    # MÉTODO 3: CREAR REGISTRO DE ENLACE / COMPROBANTE
+    # ---------------------------------------------------------
+    idenlace = "0"
+    
+    if conectado:
+        print("\n--- 3. Ejecutando mdwhatsappenlacev01 ---")
+        
+        # Variables autodocumentadas
+        ctipoenlace = "1"          # Ej: 1 = Factura
+        cnombrecomp = "FC-0001"
+        cenlace = ""                # Se deja en blanco intencionalmente
+        cusuariosql = ""            # Opcional
+        cdescripcion = "Factura de prueba para Juan"
+        ctotal = "1500.50"
+        cprocesado = "0"
+
+        idenlacestr = api.mdwhatsappenlacev01(
+            ctipo=ctipoenlace,
+            ccodigo=ccodigo, # Usamos el mismo código del destino
+            cnombre=cnombrecomp,
+            cfecha=cfecha,
+            cenlace=cenlace,
+            cusuariosql=cusuariosql,
+            cdescripcion=cdescripcion,
+            ntotal=ctotal,
+            nprocesado=cprocesado,
+            caccionclave=caccionclave
+        )
+
+        if idenlacestr == "0":
+            print("❌ Error en mdwhatsappenlacev01:", api.ultimomensajeerror)
+        else:
+            idenlace = idenlacestr
+            print(f"✅ Éxito. Enlace creado/actualizado con ID: {idenlace}")
+
+    # ---------------------------------------------------------
+    # MÉTODO 4: SUBIR ARCHIVO PDF AL ENLACE
+    # ---------------------------------------------------------
+    if conectado and idenlace != "0":
+        print("\n--- 4. Ejecutando mdwhatsappenlaceurlv01 ---")
+        
+        # NOTA: En un entorno de producción, asegúrate de que el archivo exista en la ruta indicada.
+        # Utilizamos el ID devuelto por el método anterior (mdwhatsappenlacev01).
+        rutapdf = "C:\\temp\\factura_juan.pdf" 
+        
+        resultadourl = api.mdwhatsappenlaceurlv01(
+            nid_enlace=int(idenlace), 
+            cruta_archivo=rutapdf
+        )
+
+        if resultadourl == "0":
+            print("❌ Error en mdwhatsappenlaceurlv01:", api.ultimomensajeerror)
+            print("   (Verifique que el archivo exista y que el plan permita la subida)")
+        else:
+            print(f"✅ Éxito. Archivo PDF subido y asociado. URL pública: {resultadourl}")
+
+    # ---------------------------------------------------------
+    # MÉTODO 5: ENVIAR PLANTILLA DE WHATSAPP
+    # ---------------------------------------------------------
+    if conectado:
+        print("\n--- 5. Ejecutando mdwhatssappenviarplantilla01v01 ---")
+        
+        # REGLAS IMPORTANTES:
+        # 1. 'cdestino' y 'ccodigo' son EXCLUYENTES. Si se envían ambos, el código tiene prioridad.
+        #    Se recomienda enviar el destino en blanco si se utiliza el código.
+        # 2. Solo se enviará el mensaje si el destino interactuó previamente con el chatbot 
+        #    al menos una vez a través de www.misdatos.com.ar/bot (opt-in de Meta).
+        
+        caccionplantilla = "consultar;" # Opcional. Define la acción que gatillará el botón en el bot.
+
+        idplantillastr = api.mdwhatssappenviarplantilla01v01(
+            cdestino="", 
+            ccodigo=ccodigo,
+            caccion=caccionplantilla
+        )
+
+        if idplantillastr == "0":
+            print("❌ Error en mdwhatssappenviarplantilla01v01:", api.ultimomensajeerror)
+        else:
+            print(f"✅ Éxito. Plantilla de aviso enviada correctamente. ID de mensaje en Meta: {idplantillastr}")
+
+    # ---------------------------------------------------------
+    # LIMPIEZA
+    # ---------------------------------------------------------
+    api = None
+    print("\nProceso finalizado.")
