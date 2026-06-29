@@ -135,7 +135,7 @@ if __name__ == '__main__':
         # 2. Solo se enviará el mensaje si el destino interactuó previamente con el chatbot 
         #    al menos una vez a través de www.misdatos.com.ar/bot (opt-in de Meta).
         
-        caccionplantilla = "consultar;" # Opcional. Define la acción que gatillará el botón en el bot.
+        caccionplantilla = "consultarnovedades;" # Opcional. Define la acción que gatillará el botón en el bot.
 
         idplantillastr = api.mdwhatssappenviarplantilla01v01(
             cdestino="", 
