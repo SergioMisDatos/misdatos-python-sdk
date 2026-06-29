@@ -76,6 +76,7 @@ if __name__ == '__main__':
         # Variables autodocumentadas
         ctipoenlace = "1"          # Ej: 1 = Factura
         cnombrecomp = "FC-0001"
+        cfecha = "20260626"         # Formato AAAAMMDD
         cenlace = ""                # Se deja en blanco intencionalmente
         cusuariosql = ""            # Opcional
         cdescripcion = "Factura de prueba para Juan"
