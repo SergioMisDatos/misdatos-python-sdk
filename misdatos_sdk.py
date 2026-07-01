@@ -4,6 +4,8 @@ import base64
 import os
 import requests
 from datetime import datetime, date
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 class mdapi2:
     """
