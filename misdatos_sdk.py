@@ -20,26 +20,40 @@ class mdapi2:
         self.revision = "010.90"
         self.respuesta = None
 
-    def conectar(self):
-        """
-        Inicia la sesión HTTP y configura los headers de autorización Bearer.
-        """
+     def conectar(self):
         self.ultimomensajeerror = ""
+        bresultado = False
         if not self.password:
-            self.ultimomensajeerror = "Debe asignar un token (password) antes de conectar"
+            self.ultimomensajeerror = "Debe asignar un token antes de conectar"
             return False
             
         try:
-            self.service = requests.Session()
+            # 1. Instanciamos la sesión
+            self._service = requests.Session()
+            
+            # 2. Configuramos la estrategia de reintentos (NUEVO)
+            retries = Retry(
+                total=3,                # Número máximo de reintentos (3 es un buen estándar)
+                backoff_factor=0.5,     # Espera 0.5s, 1s, 2s entre reintentos
+                status_forcelist=[429, 500, 502, 503, 504], # Reintentar si GAE devuelve error temporal
+                allowed_methods=["HEAD", "GET", "OPTIONS", "POST"] # Forzamos reintento también en POST
+            )
+            
+            # 3. Montamos el adaptador en la sesión (NUEVO)
+            adapter = HTTPAdapter(max_retries=retries)
+            self._service.mount("https://", adapter)
+            self._service.mount("http://", adapter)
+
+            # 4. Actualizamos los headers (Tú código original)
             self.service.headers.update({
                 "Authorization": f"Bearer {self.usuario} {self.password}",
                 "Content-Type": "application/json"
             })
-            return True
+            bresultado = True
         except Exception as e:
             self.ultimomensajeerror = f"Error al preparar conexión API: {e}"
-            return False
-
+            
+        return bresultado
     def leerPropiedad(self, cmetodo="", cpropiedad="", nindice=0, nsubindice=0, nsubsubindice=0):
         """
         Método de utilidad para recorrer la respuesta JSON estructurada.
